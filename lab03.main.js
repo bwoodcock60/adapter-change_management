@@ -35,12 +35,86 @@ const validResponseRegex = /(2\d\d)/;
  */
 
 
+/**
+ * @function constructUri
+ * @description Build and return the proper URI by appending an optionally passed
+ *   [URL query string]{@link https://en.wikipedia.org/wiki/Query_string}.
+ *
+ * @param {string} serviceNowTable - The table target of the ServiceNow table API.
+ * @param {string} [query] - Optional URL query string.
+ *
+ * @return {string} ServiceNow URL
+ */
+function constructUri(serviceNowTable, query = null) {
+  let uri = `/api/now/table/${serviceNowTable}`;
+  if (query) {
+    uri = uri + '?' + query;
+  }
+  return uri;
+}
 
 
+/**
+ * @function isHibernating
+ * @description Checks if request function responded with evidence of
+ *   a hibernating ServiceNow instance.
+ *
+ * @param {object} response - The response argument passed by the request function in its callback.
+ *
+ * @return {boolean} Returns true if instance is hibernating. Otherwise returns false.
+ */
+function isHibernating(response) {
+  //console.log(`StatusCode: ` + response.statusCode);
+  return response.body.includes('Instance Hibernating page')
+  && response.body.includes('<html>')
+  && response.statusCode === 200;
+}
 
 
-
-
+/**
+ * @function processRequestResults
+ * @description Inspect ServiceNow API response for an error, bad response code, or
+ *   a hibernating instance. If any of those conditions are detected, return an error.
+ *   Else return the API's response.
+ *
+ * @param {error} error - The error argument passed by the request function in its callback.
+ * @param {object} response - The response argument passed by the request function in its callback.
+ * @param {string} body - The HTML body argument passed by the request function in its callback.
+ * @param {iapCallback} callback - Callback a function.
+ * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
+ *   Will be HTML text if hibernating instance.
+ * @param {error} callback.error - The error property of callback.
+ */
+function processRequestResults(error, response, body, callback) {
+  /**
+   * You must build the contents of this function.
+   * Study your package and note which parts of the get()
+   * and post() functions evaluate and respond to data
+   * and/or errors the request() function returns.
+   * This function must not check for a hibernating instance;
+   * it must call function isHibernating.
+   */
+   //console.log(response);
+    let callbackData = null;
+    let callbackError = null;
+    
+    if (error) {
+      console.error('Error present.');
+      callbackError = error;
+      callback(callbackData, callbackError);       
+    } else if (!validResponseRegex.test(response.statusCode)) {
+      console.error('Bad response code.');
+      callbackError = response;
+      callback(callbackData, callbackError);       
+    } else if (isHibernating(response) == true) {
+      callbackError = 'Service Now instance is hibernating';
+      callback(callbackData, callbackError);      
+      // console.error(callbackError);
+    } else {
+      callbackData = response;
+      callback(callbackData, callbackError);
+  };
+}
 
 
 /**
