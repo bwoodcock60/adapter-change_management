@@ -2,7 +2,8 @@
 const options = {
   url: 'https://dev78250.service-now.com/',
   username: 'admin',
-  password: 'P7NLA4iQolya'
+  password: 'P7NLA4iQolya',
+  serviceNowTable: 'change_request'
 };
 
 
@@ -16,129 +17,36 @@ const request = require('request');
 // We'll use this regular expression to verify REST API's HTTP response status code.
 const validResponseRegex = /(2\d\d)/;
 
-// Use JSDoc to create a JSDoc data type for an IAP callback.
-// Call the new type iapCallback.
-// Notice iapCallback is a data-first callback.
+// Import built-in Node.js package path.
+const path = require('path');
 
 /**
- * @callback iapCallback
- * @description A [callback function]{@link
- *   https://developer.mozilla.org/en-US/docs/Glossary/Callback_function}
- *   is a function passed into another function as an argument, which is
- *   then invoked inside the outer function to complete some kind of
- *   routine or action.
- *
- * @param {*} responseData - When no errors are caught, return data as a
- *   single argument to callback function.
- * @param {error} [errorMessage] - If an error is caught, return error
- *   message in optional second argument to callback function.
+ * Import the ServiceNowConnector class from local Node.js module connector.js.
+ *   and assign it to constant ServiceNowConnector.
+ * When importing local modules, IAP requires an absolute file reference.
+ * Built-in module path's join method constructs the absolute filename.
  */
-
-
-
-
-
-
-
-
-
+const ServiceNowConnector = require(path.join(__dirname, './connector.js'));
 
 /**
- * @function sendRequest
- * @description Builds final options argument for request function
- *   from global const options and parameter callOptions.
- *   Executes request call, then verifies response.
- *
- * @param {object} callOptions - Passed call options.
- * @param {string} callOptions.query - URL query string.
- * @param {string} callOptions.serviceNowTable - The table target of the ServiceNow table API.
- * @param {string} callOptions.method - HTTP API request method.
- * @param {iapCallback} callback - Callback a function.
- * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
- *   Will be HTML text if hibernating instance.
- * @param {error} callback.error - The error property of callback.
+ * @function mainOnObject
+ * @description Instantiates an object from the imported ServiceNowConnector class
+ *   and tests the object's get and post methods.
  */
-function sendRequest(callOptions, callback) {
-  // Initialize return arguments for callback
-  let uri;
-  if (callOptions.query)
-    uri = constructUri(callOptions.serviceNowTable, callOptions.query);
-  else
-    uri = constructUri(callOptions.serviceNowTable);
-  /**
-   * You must build the requestOptions object.
-   * This is not a simple copy/paste of the requestOptions object
-   * from the previous lab. There should be no
-   * hardcoded values.
-   */
-  const requestOptions = {
-      method: callOptions.method,
-      auth: {
-        user: options.username,
-        pass: options.password,
-      },
-      baseUrl: options.url,
-      uri: uri,
-  };
-    //console.log(requestOptions);
-
-  request(requestOptions, (error, response, body) => {
-    processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
-  });
-}
-
-
-/**
- * @function get
- * @description Call the ServiceNow GET API. Sets the API call's method and query,
- *   then calls sendRequest().
- *
- * @param {object} callOptions - Passed call options.
- * @param {string} callOptions.serviceNowTable - The table target of the ServiceNow table API.
- * @param {iapCallback} callback - Callback a function.
- * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
- *   Will be HTML text if hibernating instance.
- * @param {error} callback.error - The error property of callback.
- */
-function get(callOptions, callback) {
-    console.log(`Calling get.sendRequest function`);
-  callOptions.method = 'GET';
-  callOptions.query = 'sysparm_limit=1';
-  sendRequest(callOptions, (results, error) => callback(results, error));
-}
-
-
-/**
- * @function post
- * @description Call the ServiceNow POST API. Sets the API call's method,
- *   then calls sendRequest().
- *
- * @param {object} callOptions - Passed call options.
- * @param {string} callOptions.serviceNowTable - The table target of the ServiceNow table API.
- * @param {iapCallback} callback - Callback a function.
- * @param {(object|string)} callback.data - The API's response. Will be an object if sunnyday path.
- *   Will be HTML text if hibernating instance.
- * @param {error} callback.error - The error property of callback.
- */
-function post(callOptions, callback) {
-  callOptions.method = 'POST';
-  sendRequest(callOptions, (results, error) => callback(results, error));
-}
-
-
-/**
- * @function main
- * @description Tests get() and post() functions.
- */
-function main() {
-    console.log(`Calling main.get function`);
-  get({ serviceNowTable: 'change_request' }, (data, error) => {
+function mainOnObject() {
+  // Instantiate an object from class ServiceNowConnector.
+  const connector = new ServiceNowConnector(options);
+  // Test the object's get and post methods.
+  // You must write the arguments for get and post.
+  //connector.get();
+  //connector.post();
+  connector.get((data, error) => {
     if (error) {
       console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
     }
     console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
   });
-  post({ serviceNowTable: 'change_request' }, (data, error) => {
+  connector.post((data, error) => {
     if (error) {
       console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
     }
@@ -146,6 +54,5 @@ function main() {
   });
 }
 
-
-// Call main to run it.
-main();
+// Call mainOnObject to run it.
+mainOnObject();
