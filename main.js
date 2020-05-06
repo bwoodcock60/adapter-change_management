@@ -132,7 +132,8 @@ healthcheck(callback) {
       */
       this.emitOnline();
       //debug logging does not function as the adapter logging from GUI is set to info (and higher)
-      log.debug("ServiceNow Adapter ONLINE: ID=" + this.id);
+      //so I have changed this to log.info for Final Project
+      log.info("ServiceNow Adapter ONLINE: ID=" + this.id);
       if(callback){
         callback(result,error);
       }
@@ -199,6 +200,8 @@ healthcheck(callback) {
            callback(data,error);
        }else{
          if(data.body){
+           // data logging test: tail -f /var/log/pronghorn/ServiceNow\ Change.log
+           //log.info(data.body);
            let bodyObj = JSON.parse(data.body);
            let chgTkts = [];
            bodyObj.result.forEach((item) => {
