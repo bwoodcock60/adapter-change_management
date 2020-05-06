@@ -115,9 +115,9 @@ healthcheck(callback) {
       * for the callback's errorMessage parameter.
       */
       this.emitOffline();
-      log.error("ServiceNow Adapter ERROR: ID=");
+      log.error("ServiceNow Adapter ERROR: ID=" + this.id);
       if(callback){
-        callback(error);
+        callback(result,error);
       }
    } else {
      /**
@@ -131,9 +131,10 @@ healthcheck(callback) {
       * responseData parameter.
       */
       this.emitOnline();
-      log.debug('ServiceNow Adapter ONLINE: ID=TEST');
+      //debug logging does not function as the adapter logging from GUI is set to info (and higher)
+      log.debug("ServiceNow Adapter ONLINE: ID=" + this.id);
       if(callback){
-        callback(result);
+        callback(result,error);
       }
    }
  });
