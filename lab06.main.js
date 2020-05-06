@@ -194,29 +194,7 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     this.connector.get((data,error) => {
-       if(error){
-           callback(data,error);
-       }else{
-         if(data.body){
-           let bodyObj = JSON.parse(data.body);
-           let chgTkts = [];
-           bodyObj.result.forEach((item) => {
-               let chgTkt = {
-                   active: item.active,
-                   change_ticket_key: item.sys_id,
-                   change_ticket_number: item.number,
-                   description: item.description,
-                   priority: item.priority,
-                   work_start: item.work_start,
-                   work_end: item.work_end
-                   }
-               chgTkts.push(chgTkt);
-           });
-           callback(chgTkts,error);
-         }
-       }
-     })
+     this.connector.get(callback)
   }
 
   /**
@@ -235,27 +213,7 @@ healthcheck(callback) {
      * Note how the object was instantiated in the constructor().
      * post() takes a callback function.
      */
- 
-     this.connector.post((data,error) => {
-       if(error){
-           callback(data,error);
-       }else{
-         if(data.body){
-           let bodyObj = JSON.parse(data.body);
-           let item = bodyObj.result;
-           let chgTicket = {
-                   active: item.active,
-                   change_ticket_key: item.sys_id,
-                   change_ticket_number: item.number,
-                   description: item.description,
-                   priority: item.priority,
-                   work_start: item.work_start,
-                   work_end: item.work_end
-                   }
-           callback(chgTicket,error);
-         }
-       }
-     });
+     this.connector.post(callback)
   }
 }
 
